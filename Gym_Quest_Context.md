@@ -48,7 +48,7 @@ Referência adotada a partir do projeto ScoreQuest (mesmo scaffold `android-comp
 
 - **Exercise**: `id`, `name`, `muscleGroupId`, `equipment` (opcional), `notes`, `exerciseType` (`WEIGHT_REPS` | `BODYWEIGHT_REPS` | `TIME` | `DISTANCE_TIME`).
 - **MuscleGroup** (grupo muscular, gerenciado na aba Configurações): `id`, `name`.
-- **Workout** (treino): `id`, `date`, `startedAt`, `finishedAt` (opcional — preenchido ao clicar em "Finalizar treino"; duração = `finishedAt` − `startedAt`), `notes`, `status` (`IN_PROGRESS` | `COMPLETED`) — permite retomar um treino salvo automaticamente.
+- **Workout** (treino): `id`, `name` (opcional — nome da rotina, ex.: "Treino A - Peito/Ombro/Tríceps"; adicionado ao importar dados do Hevy, que nomeia rotinas), `date`, `startedAt`, `finishedAt` (opcional — preenchido ao clicar em "Finalizar treino"; duração = `finishedAt` − `startedAt`), `notes`, `status` (`IN_PROGRESS` | `COMPLETED`) — permite retomar um treino salvo automaticamente.
 - **WorkoutSet** (série): `id`, `workoutId`, `exerciseId`, `order` (posição global da série dentro do treino), `setType` (`WARMUP` | `NORMAL` | `FAILURE` | `DROP_SET`), `weight` (opcional), `reps` (opcional), `durationSeconds` (opcional), `distanceMeters` (opcional), `restTimeSeconds`, `rpe` (opcional, escala 6-10, informado pelo usuário), `notes`, `supersetGroupId` (opcional — liga séries de exercícios diferentes que fazem parte da mesma superssérie/circuito, executadas em sequência com descanso compartilhado).
 - **BodyWeightLog** (peso corporal do usuário): `id`, `date`, `weight`.
 
@@ -100,3 +100,12 @@ Projeto criado em `C:\Rogue\GymQuest`, package `com.rogue.gymquest`, a partir da
 **i18n**: ainda não iniciado — todos os textos de UI estão em português, hardcoded direto no Kotlin (não em `strings.xml`). Precisa de um passo de extração antes de dar suporte a EN.
 
 **Build**: `.\gradlew.bat :app:compileDebugKotlin` passa limpo (sem warnings) nesta sessão. Ainda não instalado/testado em dispositivo físico.
+
+**Grupo muscular "Cardio e Esporte"**: adicionado ao seed padrão (11 grupos agora) para cobrir exercícios que não têm grupo muscular de força associado (esteira, spinning, caminhada, alongamento, esportes como basquete).
+
+**Export/Import de dados via JSON — implementado**: `domain/model/GymQuestBackup.kt` (schemaVersion, exportedAt, listas das 5 entidades — mesmo padrão do ShopControl de anotar as entidades Room diretamente com `@Serializable` em vez de DTOs paralelos) + `data/repository/BackupRepository.kt`.
+
+- **Export**: snapshot de todas as DAOs (`.first()` em cada Flow), serializa com `kotlinx.serialization` (JSON legível, `prettyPrint`), grava em `cacheDir/backups/`, devolve um `content://` Uri via `FileProvider` (`res/xml/file_paths.xml` + `<provider>` no manifest, authority `${applicationId}.fileprovider`) para compartilhar via `Intent.ACTION_SEND` — mesmo fluxo do ShopControl.
+- **Import**: lê o JSON de um Uri escolhido via `ActivityResultContracts.OpenDocument`, roda tudo dentro de `AppDatabase.withTransaction`. `MuscleGroup` e `Exercise` são dedup-ou-cria por nome (reaproveita se já existir); `Workout`, `WorkoutSet` e `BodyWeightLog` são sempre inseridos como novos (são registros históricos, não catálogo). IDs do JSON são tratados como locais-ao-arquivo e remapeados via `Map<idAntigo, idNovo>` — mesmo padrão do ShopControl. `supersetGroupId` é remapeado em uma segunda passada (já que pode referenciar o id de outra série do mesmo arquivo).
+- UI em Configurações → seção "Dados": botões "Exportar dados (JSON)" / "Importar dados (JSON)", com `ConfirmDialog` (novo componente, `presentation/components/ConfirmDialog.kt`) antes de importar.
+- **Usado para importar o histórico do Hevy** (ver `Gym_Quest_Planejamento.md` — a conversão do CSV do Hevy para esse formato JSON foi feita por um script PowerShell ad-hoc, fora do app, mesmo padrão da conversão de planilha pessoal que o ShopControl já fez para a Renda).

@@ -11,6 +11,8 @@ data class WorkoutEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
 
+    val name: String? = null,
+
     val date: Long,
 
     val startedAt: Long,

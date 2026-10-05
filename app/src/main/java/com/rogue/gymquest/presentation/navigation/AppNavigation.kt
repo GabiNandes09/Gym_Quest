@@ -19,9 +19,11 @@ import com.rogue.gymquest.presentation.components.GymQuestBottomBar
 import com.rogue.gymquest.presentation.screens.ExerciseDetailScreen
 import com.rogue.gymquest.presentation.screens.ExerciseFormScreen
 import com.rogue.gymquest.presentation.screens.ExerciseListScreen
+import com.rogue.gymquest.presentation.screens.HistoryScreen
 import com.rogue.gymquest.presentation.screens.HomeScreen
 import com.rogue.gymquest.presentation.screens.PlaceholderScreen
 import com.rogue.gymquest.presentation.screens.SettingsScreen
+import com.rogue.gymquest.presentation.screens.WorkoutDetailScreen
 
 @Composable
 fun AppNavigation() {
@@ -100,14 +102,20 @@ fun AppNavigation() {
             }
 
             composable(Routes.History.route) {
-                PlaceholderScreen(title = "Histórico")
+                HistoryScreen(
+                    onWorkoutClick = { id -> navController.navigate(Routes.WorkoutDetail.create(id)) }
+                )
             }
 
             composable(
                 route = Routes.WorkoutDetail.route,
                 arguments = listOf(navArgument("workoutId") { type = NavType.LongType })
-            ) {
-                PlaceholderScreen(title = "Detalhe do treino")
+            ) { backStackEntry ->
+                val workoutId = backStackEntry.arguments?.getLong("workoutId") ?: 0L
+                WorkoutDetailScreen(
+                    workoutId = workoutId,
+                    onBack = { navController.popBackStack() }
+                )
             }
 
             composable(Routes.Statistics.route) {

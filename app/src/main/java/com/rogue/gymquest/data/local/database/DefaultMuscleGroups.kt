@@ -10,5 +10,6 @@ val defaultMuscleGroupNames = listOf(
     "Perna",
     "Glúteos",
     "Panturrilha",
-    "Abdômen"
+    "Abdômen",
+    "Cardio e Esporte"
 )

@@ -4,6 +4,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.rogue.gymquest.data.local.database.AppDatabase
+import com.rogue.gymquest.data.local.database.MIGRATION_1_2
 import com.rogue.gymquest.data.local.database.defaultMuscleGroupNames
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
@@ -25,6 +26,7 @@ val databaseModule = module {
                     }
                 }
             })
+            .addMigrations(MIGRATION_1_2)
             .build()
     }
 

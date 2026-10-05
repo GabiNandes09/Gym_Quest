@@ -22,6 +22,9 @@ interface MuscleGroupDao {
     @Query("SELECT * FROM muscle_groups WHERE id = :id")
     suspend fun getById(id: Long): MuscleGroupEntity?
 
+    @Query("SELECT * FROM muscle_groups WHERE name = :name LIMIT 1")
+    suspend fun findByName(name: String): MuscleGroupEntity?
+
     @Query("SELECT COUNT(*) FROM exercises WHERE muscleGroupId = :id")
     suspend fun countExercisesUsing(id: Long): Int
 

@@ -19,6 +19,9 @@ interface WorkoutDao {
     @Query("SELECT * FROM workouts WHERE id = :id")
     fun getById(id: Long): Flow<WorkoutEntity?>
 
+    @Query("SELECT * FROM workouts")
+    fun getAll(): Flow<List<WorkoutEntity>>
+
     @Query("SELECT * FROM workouts WHERE status = 'IN_PROGRESS' LIMIT 1")
     suspend fun getInProgress(): WorkoutEntity?
 

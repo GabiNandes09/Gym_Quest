@@ -3,6 +3,7 @@ package com.rogue.gymquest.data.repository
 import com.rogue.gymquest.data.local.dao.WorkoutSetDao
 import com.rogue.gymquest.data.local.entity.SetType
 import com.rogue.gymquest.data.local.entity.WorkoutSetEntity
+import com.rogue.gymquest.data.local.entity.WorkoutSetWithExercise
 import kotlinx.coroutines.flow.Flow
 
 class WorkoutSetRepository(
@@ -11,6 +12,9 @@ class WorkoutSetRepository(
 
     fun getByWorkoutId(workoutId: Long): Flow<List<WorkoutSetEntity>> =
         workoutSetDao.getByWorkoutId(workoutId)
+
+    fun getByWorkoutIdWithExercise(workoutId: Long): Flow<List<WorkoutSetWithExercise>> =
+        workoutSetDao.getByWorkoutIdWithExercise(workoutId)
 
     fun getByExerciseId(exerciseId: Long): Flow<List<WorkoutSetEntity>> =
         workoutSetDao.getByExerciseId(exerciseId)

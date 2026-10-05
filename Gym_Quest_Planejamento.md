@@ -30,7 +30,6 @@
 - Streak/frequência de treino (calendário de dias treinados).
 - Log de peso corporal do usuário ao longo do tempo.
 - Idioma PT/EN (tela de Configurações já existe com unidade de peso e tema claro/escuro — ver §6; falta a troca de idioma e a extração de strings para `strings.xml`/`strings-en.xml`, hoje os textos estão hardcoded em português no Kotlin).
-- Export/Import de dados via JSON.
 
 ### V2
 - Sincronização/backup em nuvem (conta + backend).
@@ -73,6 +72,16 @@ Unidade de peso (dropdown com kg ou lb), tema claro/escuro, idioma (PT/EN), gere
 
 ## 3. Itens em Aberto
 
-- Mecanismo de export/import JSON: compartilhamento manual de arquivo ou tela dedicada com seleção de local?
-- Qual fonte de seed de exercícios usar — [free-exercise-db](https://github.com/yuhonas/free-exercise-db) (~800 exercícios, domínio público) ou [wrkout/exercises.json](https://github.com/wrkout/exercises.json) — e como tratar a tradução para PT-BR (ambas as bases estão em inglês).
+- Qual fonte de seed de exercícios usar — [free-exercise-db](https://github.com/yuhonas/free-exercise-db) (~800 exercícios, domínio público) ou [wrkout/exercises.json](https://github.com/wrkout/exercises.json) — e como tratar a tradução para PT-BR (ambas as bases estão em inglês). **Diferente** da importação do histórico do Hevy abaixo — este item é sobre o catálogo inicial vazio que o app mesmo traria para um usuário novo, não sobre dados reais de treino.
 - Regra de descanso em superséries: o timer conta só entre exercícios do grupo, ou também dentro do mesmo exercício ao repetir a volta?
+
+## 4. Importação do histórico do Hevy
+
+Usuário exportou o histórico de treinos do app Hevy (`workout_data.csv`, 5350 séries em 303 treinos, fev/2024–set/2026) para importar no GymQuest via a feature de Import JSON (ver `Gym_Quest_Context.md` §6). Conversão feita por um script PowerShell ad-hoc (`convert_hevy_export.ps1`, fora do app — mesmo padrão da conversão de planilha pessoal do ShopControl), que já:
+
+- Classificou os 63 exercícios do CSV em grupo muscular + `exerciseType`.
+- Criou o grupo `"Cardio e Esporte"` para Spinning/Esteira/Caminhada/Basquete/Alongamento (decisão do usuário).
+- Preservou o nome da rotina (`Treino A/B/C`, `Upper 1/2`, `Lower 1/2`...) no novo campo `Workout.name`.
+- Gerou `gymquest_import_hevy.json` em `Downloads`, já no formato que o botão "Importar dados (JSON)" em Configurações espera.
+
+**Pendente**: o JSON ainda não foi de fato importado por dentro do app — nenhum dispositivo/emulador Android estava conectado nesta sessão para testar o fluxo fim a fim (seleção do arquivo, inserção no Room, toast de resultado). Falta também decidir o que fazer com os poucos `restTimeSeconds` (o Hevy não exporta tempo de descanso — todos os sets importados ficam com `0`) e revisar a classificação de grupo muscular proposta (ex.: Cadeira Abdutora foi posta em Glúteos, Cadeira Adutora em Perna — são chamadas arbitrárias, ajustáveis depois de importado).
