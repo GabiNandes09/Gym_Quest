@@ -8,12 +8,14 @@ import com.rogue.gymquest.presentation.viewmodel.HomeViewModel
 import com.rogue.gymquest.presentation.viewmodel.SettingsViewModel
 import com.rogue.gymquest.presentation.viewmodel.ThemeViewModel
 import com.rogue.gymquest.presentation.viewmodel.WorkoutDetailViewModel
+import com.rogue.gymquest.presentation.viewmodel.WorkoutsViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
 val viewModelModule = module {
     viewModel { ThemeViewModel(get()) }
     viewModel { HomeViewModel(get()) }
+    viewModel { WorkoutsViewModel(get()) }
     viewModel { ExerciseListViewModel(get()) }
     viewModel { (exerciseId: Long) -> ExerciseFormViewModel(get(), get(), exerciseId) }
     viewModel { (exerciseId: Long) -> ExerciseDetailViewModel(get(), get(), get(), exerciseId) }

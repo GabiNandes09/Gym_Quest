@@ -22,8 +22,10 @@ import com.rogue.gymquest.presentation.screens.ExerciseListScreen
 import com.rogue.gymquest.presentation.screens.HistoryScreen
 import com.rogue.gymquest.presentation.screens.HomeScreen
 import com.rogue.gymquest.presentation.screens.PlaceholderScreen
+import com.rogue.gymquest.presentation.screens.ProfileScreen
 import com.rogue.gymquest.presentation.screens.SettingsScreen
 import com.rogue.gymquest.presentation.screens.WorkoutDetailScreen
+import com.rogue.gymquest.presentation.screens.WorkoutsScreen
 
 @Composable
 fun AppNavigation() {
@@ -68,8 +70,23 @@ fun AppNavigation() {
                 HomeScreen()
             }
 
+            composable(Routes.Workouts.route) {
+                WorkoutsScreen(
+                    onViewWorkout = { id -> navController.navigate(Routes.WorkoutDetail.create(id)) }
+                )
+            }
+
+            composable(Routes.Profile.route) {
+                ProfileScreen(
+                    onExercisesClick = { navController.navigate(Routes.ExerciseList.route) },
+                    onHistoryClick = { navController.navigate(Routes.History.route) },
+                    onSettingsClick = { navController.navigate(Routes.Settings.route) }
+                )
+            }
+
             composable(Routes.ExerciseList.route) {
                 ExerciseListScreen(
+                    onBack = { navController.popBackStack() },
                     onAddExercise = { navController.navigate(Routes.ExerciseForm.create()) },
                     onExerciseClick = { id -> navController.navigate(Routes.ExerciseDetail.create(id)) }
                 )
@@ -103,6 +120,7 @@ fun AppNavigation() {
 
             composable(Routes.History.route) {
                 HistoryScreen(
+                    onBack = { navController.popBackStack() },
                     onWorkoutClick = { id -> navController.navigate(Routes.WorkoutDetail.create(id)) }
                 )
             }
@@ -114,7 +132,11 @@ fun AppNavigation() {
                 val workoutId = backStackEntry.arguments?.getLong("workoutId") ?: 0L
                 WorkoutDetailScreen(
                     workoutId = workoutId,
-                    onBack = { navController.popBackStack() }
+                    onBack = { navController.popBackStack() },
+                    onWorkoutStarted = { newId ->
+                        navController.popBackStack()
+                        navController.navigate(Routes.WorkoutDetail.create(newId))
+                    }
                 )
             }
 
@@ -127,7 +149,9 @@ fun AppNavigation() {
             }
 
             composable(Routes.Settings.route) {
-                SettingsScreen()
+                SettingsScreen(
+                    onBack = { navController.popBackStack() }
+                )
             }
         }
     }

@@ -12,5 +12,9 @@ data class SetGroup(
 data class WorkoutDetailState(
     val isLoading: Boolean = true,
     val workout: WorkoutEntity? = null,
-    val setGroups: List<SetGroup> = emptyList()
+    val setGroups: List<SetGroup> = emptyList(),
+    val isProcessing: Boolean = false,
+    val startedWorkoutId: Long? = null,
+    val shouldNavigateBack: Boolean = false,
+    val errorMessage: String? = null
 )

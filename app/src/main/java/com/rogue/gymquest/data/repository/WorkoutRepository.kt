@@ -15,16 +15,23 @@ class WorkoutRepository(
     fun getCompleted(): Flow<List<WorkoutEntity>> =
         workoutDao.getCompleted()
 
+    fun getInProgressFlow(): Flow<WorkoutEntity?> =
+        workoutDao.getInProgressFlow()
+
+    fun getRoutineTemplates(): Flow<List<WorkoutEntity>> =
+        workoutDao.getLatestPerRoutineName()
+
     suspend fun getInProgress(): WorkoutEntity? =
         workoutDao.getInProgress()
 
     suspend fun getLastCompleted(): WorkoutEntity? =
         workoutDao.getLastCompleted()
 
-    suspend fun startNew(date: Long = System.currentTimeMillis()): Long {
+    suspend fun startNew(name: String? = null, date: Long = System.currentTimeMillis()): Long {
         val now = System.currentTimeMillis()
         return workoutDao.insert(
             WorkoutEntity(
+                name = name,
                 date = date,
                 startedAt = now,
                 status = WorkoutStatus.IN_PROGRESS,

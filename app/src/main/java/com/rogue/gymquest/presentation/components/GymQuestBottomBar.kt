@@ -5,11 +5,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.FitnessCenter
-import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -31,11 +29,9 @@ private data class BottomNavItem(
 )
 
 private val bottomNavItems = listOf(
-    BottomNavItem(Routes.ExerciseList.route, Icons.Filled.FitnessCenter, "Exercícios"),
-    BottomNavItem(Routes.History.route, Icons.Filled.History, "Histórico"),
+    BottomNavItem(Routes.Workouts.route, Icons.Filled.FitnessCenter, "Treinos"),
     BottomNavItem(Routes.Home.route, Icons.Filled.Home, "Início", highlighted = true),
-    BottomNavItem(Routes.Statistics.route, Icons.Filled.BarChart, "Estatísticas"),
-    BottomNavItem(Routes.Settings.route, Icons.Filled.Settings, "Config.")
+    BottomNavItem(Routes.Profile.route, Icons.Filled.Person, "Perfil")
 )
 
 @Composable

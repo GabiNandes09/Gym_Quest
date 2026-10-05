@@ -4,6 +4,10 @@ sealed class Routes(val route: String) {
 
     data object Home : Routes("home")
 
+    data object Workouts : Routes("workouts")
+
+    data object Profile : Routes("profile")
+
     data object ExerciseList : Routes("exercise_list")
 
     data object ExerciseForm : Routes("exercise_form?exerciseId={exerciseId}") {
@@ -30,9 +34,7 @@ sealed class Routes(val route: String) {
 }
 
 val bottomBarRoutes = setOf(
-    Routes.ExerciseList.route,
-    Routes.History.route,
+    Routes.Workouts.route,
     Routes.Home.route,
-    Routes.Statistics.route,
-    Routes.Settings.route
+    Routes.Profile.route
 )

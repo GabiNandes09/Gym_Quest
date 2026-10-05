@@ -9,24 +9,21 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class HomeViewModel(
-    private val workoutRepository: WorkoutRepository
+    workoutRepository: WorkoutRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(HomeState())
     val state = _state.asStateFlow()
 
     init {
-        refresh()
-    }
-
-    fun refresh() {
         viewModelScope.launch {
-            val inProgress = workoutRepository.getInProgress()
-            _state.value = HomeState(
-                isLoading = false,
-                hasInProgressWorkout = inProgress != null,
-                inProgressWorkoutId = inProgress?.id
-            )
+            workoutRepository.getCompleted().collect { workouts ->
+                _state.value = HomeState(
+                    isLoading = false,
+                    totalWorkouts = workouts.size,
+                    lastWorkoutDate = workouts.firstOrNull()?.date
+                )
+            }
         }
     }
 }

@@ -9,22 +9,34 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rogue.gymquest.data.local.entity.SetType
 import com.rogue.gymquest.data.local.entity.WorkoutSetWithExercise
+import com.rogue.gymquest.data.local.entity.WorkoutStatus
+import com.rogue.gymquest.presentation.components.ConfirmDialog
 import com.rogue.gymquest.presentation.viewmodel.WorkoutDetailViewModel
 import com.rogue.gymquest.presentation.viewmodel.states.SetGroup
 import org.koin.androidx.compose.koinViewModel
@@ -45,10 +57,31 @@ private fun setTypeLabel(type: SetType): String = when (type) {
 fun WorkoutDetailScreen(
     workoutId: Long,
     onBack: () -> Unit,
+    onWorkoutStarted: (Long) -> Unit,
     viewModel: WorkoutDetailViewModel = koinViewModel(parameters = { parametersOf(workoutId) })
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val formatter = remember { SimpleDateFormat("EEE, dd/MM/yyyy HH:mm", Locale("pt", "BR")) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    var showCancelConfirm by remember { mutableStateOf(false) }
+
+    LaunchedEffect(state.startedWorkoutId) {
+        state.startedWorkoutId?.let {
+            onWorkoutStarted(it)
+            viewModel.onStartedWorkoutHandled()
+        }
+    }
+
+    LaunchedEffect(state.shouldNavigateBack) {
+        if (state.shouldNavigateBack) onBack()
+    }
+
+    LaunchedEffect(state.errorMessage) {
+        state.errorMessage?.let {
+            snackbarHostState.showSnackbar(it)
+            viewModel.onErrorShown()
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -58,9 +91,17 @@ fun WorkoutDetailScreen(
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar")
                     }
+                },
+                actions = {
+                    if (state.workout?.status == WorkoutStatus.COMPLETED) {
+                        IconButton(onClick = viewModel::onPlayClick, enabled = !state.isProcessing) {
+                            Icon(Icons.Filled.PlayArrow, contentDescription = "Iniciar treino")
+                        }
+                    }
                 }
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) { Snackbar(it) } }
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
             state.workout?.let { workout ->
@@ -77,6 +118,35 @@ fun WorkoutDetailScreen(
                     workout.notes?.let {
                         Text(it, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 4.dp))
                     }
+
+                    if (workout.status == WorkoutStatus.IN_PROGRESS) {
+                        Row(modifier = Modifier.fillMaxWidth().padding(top = 16.dp)) {
+                            OutlinedButton(
+                                onClick = { showCancelConfirm = true },
+                                enabled = !state.isProcessing,
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    contentColor = MaterialTheme.colorScheme.error
+                                ),
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Text("Cancelar")
+                            }
+                            OutlinedButton(
+                                onClick = onBack,
+                                enabled = !state.isProcessing,
+                                modifier = Modifier.weight(1f).padding(horizontal = 8.dp)
+                            ) {
+                                Text("Pausar")
+                            }
+                            Button(
+                                onClick = viewModel::onFinishClick,
+                                enabled = !state.isProcessing,
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Text("Finalizar")
+                            }
+                        }
+                    }
                 }
             }
 
@@ -86,6 +156,19 @@ fun WorkoutDetailScreen(
                 }
             }
         }
+    }
+
+    if (showCancelConfirm) {
+        ConfirmDialog(
+            title = "Cancelar treino",
+            message = "Isso vai descartar este treino e todas as séries registradas nele. Essa ação não pode ser desfeita.",
+            confirmLabel = "Cancelar treino",
+            onConfirm = {
+                showCancelConfirm = false
+                viewModel.onCancelClick()
+            },
+            onDismiss = { showCancelConfirm = false }
+        )
     }
 }
 

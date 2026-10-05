@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
@@ -37,6 +38,7 @@ import org.koin.androidx.compose.koinViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExerciseListScreen(
+    onBack: () -> Unit,
     onAddExercise: () -> Unit,
     onExerciseClick: (Long) -> Unit,
     viewModel: ExerciseListViewModel = koinViewModel()
@@ -55,6 +57,11 @@ fun ExerciseListScreen(
         topBar = {
             TopAppBar(
                 title = { Text("Exercícios") },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar")
+                    }
+                },
                 actions = {
                     IconButton(onClick = onAddExercise) {
                         Icon(Icons.Filled.Add, contentDescription = "Adicionar exercício")
