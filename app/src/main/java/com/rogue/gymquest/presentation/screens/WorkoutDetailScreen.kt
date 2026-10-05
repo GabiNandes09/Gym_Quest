@@ -1,6 +1,7 @@
 package com.rogue.gymquest.presentation.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -94,6 +95,7 @@ fun WorkoutDetailScreen(
     workoutId: Long,
     onBack: () -> Unit,
     onWorkoutStarted: (Long) -> Unit,
+    onExerciseClick: (Long) -> Unit,
     viewModel: WorkoutDetailViewModel = koinViewModel(parameters = { parametersOf(workoutId) })
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -190,7 +192,8 @@ fun WorkoutDetailScreen(
                         onWeightChanged = viewModel::onSetWeightChanged,
                         onRepsChanged = viewModel::onSetRepsChanged,
                         onCompletedToggled = viewModel::onSetCompletedToggled,
-                        onAddSet = { viewModel.onAddSetClick(group) }
+                        onAddSet = { viewModel.onAddSetClick(group) },
+                        onExerciseClick = { onExerciseClick(group.exerciseId) }
                     )
                 }
             }
@@ -250,11 +253,15 @@ private fun ExerciseGroupCard(
     onWeightChanged: (Long, Double?) -> Unit,
     onRepsChanged: (Long, Int?) -> Unit,
     onCompletedToggled: (Long, Boolean) -> Unit,
-    onAddSet: () -> Unit
+    onAddSet: () -> Unit,
+    onExerciseClick: () -> Unit
 ) {
     Card(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp)) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.clickable(onClick = onExerciseClick)
+            ) {
                 Box(
                     modifier = Modifier
                         .size(32.dp)

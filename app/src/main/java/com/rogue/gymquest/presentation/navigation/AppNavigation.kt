@@ -130,7 +130,8 @@ fun AppNavigation() {
                 val exerciseId = backStackEntry.arguments?.getLong("exerciseId") ?: 0L
                 ExerciseDetailScreen(
                     exerciseId = exerciseId,
-                    onBack = { navController.popBackStack() }
+                    onBack = { navController.popBackStack() },
+                    onEditClick = { navController.navigate(Routes.ExerciseForm.create(exerciseId)) }
                 )
             }
 
@@ -156,7 +157,8 @@ fun AppNavigation() {
                     onWorkoutStarted = { newId ->
                         navController.popBackStack()
                         navController.navigate(Routes.WorkoutDetail.create(newId))
-                    }
+                    },
+                    onExerciseClick = { exerciseId -> navController.navigate(Routes.ExerciseDetail.create(exerciseId)) }
                 )
             }
 
