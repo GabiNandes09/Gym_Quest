@@ -10,5 +10,7 @@ data class WorkoutSetWithExercise(
     val reps: Int?,
     val durationSeconds: Int?,
     val distanceMeters: Double?,
+    val restTimeSeconds: Int,
+    val completed: Boolean,
     val notes: String?
 )

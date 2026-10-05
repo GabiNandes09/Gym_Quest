@@ -1,5 +1,6 @@
 package com.rogue.gymquest.di
 
+import com.rogue.gymquest.presentation.viewmodel.ActiveWorkoutViewModel
 import com.rogue.gymquest.presentation.viewmodel.ExerciseDetailViewModel
 import com.rogue.gymquest.presentation.viewmodel.ExerciseFormViewModel
 import com.rogue.gymquest.presentation.viewmodel.ExerciseListViewModel
@@ -14,12 +15,13 @@ import org.koin.dsl.module
 
 val viewModelModule = module {
     viewModel { ThemeViewModel(get()) }
+    viewModel { ActiveWorkoutViewModel(get()) }
     viewModel { HomeViewModel(get()) }
-    viewModel { WorkoutsViewModel(get()) }
+    viewModel { WorkoutsViewModel(get(), get(), get()) }
     viewModel { ExerciseListViewModel(get()) }
     viewModel { (exerciseId: Long) -> ExerciseFormViewModel(get(), get(), exerciseId) }
     viewModel { (exerciseId: Long) -> ExerciseDetailViewModel(get(), get(), get(), exerciseId) }
     viewModel { SettingsViewModel(get(), get()) }
     viewModel { HistoryViewModel(get()) }
-    viewModel { (workoutId: Long) -> WorkoutDetailViewModel(get(), get(), workoutId) }
+    viewModel { (workoutId: Long) -> WorkoutDetailViewModel(get(), get(), get(), workoutId) }
 }

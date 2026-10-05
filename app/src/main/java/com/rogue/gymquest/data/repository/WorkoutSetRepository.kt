@@ -63,6 +63,47 @@ class WorkoutSetRepository(
     suspend fun update(workoutSet: WorkoutSetEntity) =
         workoutSetDao.update(workoutSet.copy(updatedAt = System.currentTimeMillis()))
 
+    suspend fun updateWeight(id: Long, weight: Double?) =
+        workoutSetDao.updateWeight(id, weight, System.currentTimeMillis())
+
+    suspend fun updateReps(id: Long, reps: Int?) =
+        workoutSetDao.updateReps(id, reps, System.currentTimeMillis())
+
+    suspend fun updateCompleted(id: Long, completed: Boolean) =
+        workoutSetDao.updateCompleted(id, completed, System.currentTimeMillis())
+
+    suspend fun addAfter(
+        workoutId: Long,
+        afterOrder: Int,
+        exerciseId: Long,
+        setType: SetType,
+        weight: Double?,
+        reps: Int?,
+        durationSeconds: Int?,
+        distanceMeters: Double?,
+        restTimeSeconds: Int
+    ): Long {
+        val newOrder = afterOrder + 1
+        workoutSetDao.shiftOrdersFrom(workoutId, newOrder)
+        val now = System.currentTimeMillis()
+        return workoutSetDao.insert(
+            WorkoutSetEntity(
+                workoutId = workoutId,
+                exerciseId = exerciseId,
+                order = newOrder,
+                setType = setType,
+                weight = weight,
+                reps = reps,
+                durationSeconds = durationSeconds,
+                distanceMeters = distanceMeters,
+                restTimeSeconds = restTimeSeconds,
+                completed = false,
+                createdAt = now,
+                updatedAt = now
+            )
+        )
+    }
+
     suspend fun delete(id: Long) =
         workoutSetDao.delete(id)
 

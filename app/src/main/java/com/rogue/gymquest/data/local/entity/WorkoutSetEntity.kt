@@ -53,6 +53,8 @@ data class WorkoutSetEntity(
 
     val supersetGroupId: Long? = null,
 
+    val completed: Boolean = false,
+
     val createdAt: Long,
 
     val updatedAt: Long

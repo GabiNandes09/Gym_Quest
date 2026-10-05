@@ -28,7 +28,8 @@ interface WorkoutSetDao {
         SELECT s.id AS id, s.exerciseId AS exerciseId, e.name AS exerciseName,
                s.`order` AS `order`, s.setType AS setType, s.weight AS weight,
                s.reps AS reps, s.durationSeconds AS durationSeconds,
-               s.distanceMeters AS distanceMeters, s.notes AS notes
+               s.distanceMeters AS distanceMeters, s.restTimeSeconds AS restTimeSeconds,
+               s.completed AS completed, s.notes AS notes
         FROM workout_sets s
         INNER JOIN exercises e ON e.id = s.exerciseId
         WHERE s.workoutId = :workoutId
@@ -62,6 +63,18 @@ interface WorkoutSetDao {
 
     @Query("UPDATE workout_sets SET supersetGroupId = :groupId WHERE id = :id")
     suspend fun updateSupersetGroup(id: Long, groupId: Long)
+
+    @Query("UPDATE workout_sets SET weight = :weight, updatedAt = :updatedAt WHERE id = :id")
+    suspend fun updateWeight(id: Long, weight: Double?, updatedAt: Long)
+
+    @Query("UPDATE workout_sets SET reps = :reps, updatedAt = :updatedAt WHERE id = :id")
+    suspend fun updateReps(id: Long, reps: Int?, updatedAt: Long)
+
+    @Query("UPDATE workout_sets SET completed = :completed, updatedAt = :updatedAt WHERE id = :id")
+    suspend fun updateCompleted(id: Long, completed: Boolean, updatedAt: Long)
+
+    @Query("UPDATE workout_sets SET `order` = `order` + 1 WHERE workoutId = :workoutId AND `order` >= :fromOrder")
+    suspend fun shiftOrdersFrom(workoutId: Long, fromOrder: Int)
 
     @Query("DELETE FROM workout_sets WHERE id = :id")
     suspend fun delete(id: Long)

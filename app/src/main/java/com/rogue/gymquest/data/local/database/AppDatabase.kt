@@ -21,7 +21,7 @@ import com.rogue.gymquest.data.local.entity.WorkoutSetEntity
         WorkoutSetEntity::class,
         BodyWeightLogEntity::class
     ],
-    version = 2
+    version = 3
 )
 abstract class AppDatabase : RoomDatabase() {
 

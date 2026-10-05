@@ -2,20 +2,22 @@ package com.rogue.gymquest.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rogue.gymquest.data.local.entity.SetType
 import com.rogue.gymquest.data.local.entity.WorkoutSetWithExercise
 import com.rogue.gymquest.data.local.entity.WorkoutStatus
 import com.rogue.gymquest.data.repository.WorkoutRepository
 import com.rogue.gymquest.data.repository.WorkoutSetRepository
+import com.rogue.gymquest.domain.usecase.StartWorkoutFromTemplateUseCase
 import com.rogue.gymquest.presentation.viewmodel.states.SetGroup
 import com.rogue.gymquest.presentation.viewmodel.states.WorkoutDetailState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class WorkoutDetailViewModel(
     private val workoutRepository: WorkoutRepository,
     private val workoutSetRepository: WorkoutSetRepository,
+    private val startWorkoutFromTemplate: StartWorkoutFromTemplateUseCase,
     private val workoutId: Long
 ) : ViewModel() {
 
@@ -42,7 +44,7 @@ class WorkoutDetailViewModel(
         _state.value = _state.value.copy(isProcessing = true)
 
         viewModelScope.launch {
-            if (workoutRepository.getInProgress() != null) {
+            if (startWorkoutFromTemplate.hasInProgressWorkout()) {
                 _state.value = _state.value.copy(
                     isProcessing = false,
                     errorMessage = "Você já tem um treino em andamento. Finalize ou cancele antes de iniciar outro."
@@ -50,26 +52,7 @@ class WorkoutDetailViewModel(
                 return@launch
             }
 
-            val templateSets = workoutSetRepository.getByWorkoutId(workout.id).first()
-            val newWorkoutId = workoutRepository.startNew(name = workout.name)
-
-            templateSets.forEach { set ->
-                workoutSetRepository.add(
-                    workoutId = newWorkoutId,
-                    exerciseId = set.exerciseId,
-                    order = set.order,
-                    setType = set.setType,
-                    weight = set.weight,
-                    reps = set.reps,
-                    durationSeconds = set.durationSeconds,
-                    distanceMeters = set.distanceMeters,
-                    restTimeSeconds = set.restTimeSeconds,
-                    rpe = null,
-                    notes = null,
-                    supersetGroupId = null
-                )
-            }
-
+            val newWorkoutId = startWorkoutFromTemplate.start(workout)
             _state.value = _state.value.copy(isProcessing = false, startedWorkoutId = newWorkoutId)
         }
     }
@@ -96,6 +79,37 @@ class WorkoutDetailViewModel(
         viewModelScope.launch {
             workoutRepository.finish(workout)
             _state.value = _state.value.copy(isProcessing = false, shouldNavigateBack = true)
+        }
+    }
+
+    fun onSetWeightChanged(setId: Long, weight: Double?) {
+        viewModelScope.launch { workoutSetRepository.updateWeight(setId, weight) }
+    }
+
+    fun onSetRepsChanged(setId: Long, reps: Int?) {
+        viewModelScope.launch { workoutSetRepository.updateReps(setId, reps) }
+    }
+
+    fun onSetCompletedToggled(setId: Long, completed: Boolean) {
+        viewModelScope.launch { workoutSetRepository.updateCompleted(setId, completed) }
+    }
+
+    fun onAddSetClick(group: SetGroup) {
+        val workout = _state.value.workout ?: return
+        val lastSet = group.sets.lastOrNull() ?: return
+
+        viewModelScope.launch {
+            workoutSetRepository.addAfter(
+                workoutId = workout.id,
+                afterOrder = lastSet.order,
+                exerciseId = group.exerciseId,
+                setType = SetType.NORMAL,
+                weight = lastSet.weight,
+                reps = lastSet.reps,
+                durationSeconds = lastSet.durationSeconds,
+                distanceMeters = lastSet.distanceMeters,
+                restTimeSeconds = lastSet.restTimeSeconds
+            )
         }
     }
 

@@ -6,5 +6,9 @@ data class WorkoutsState(
     val isLoading: Boolean = true,
     val hasInProgressWorkout: Boolean = false,
     val inProgressWorkoutId: Long? = null,
-    val routineTemplates: List<WorkoutEntity> = emptyList()
+    val routineTemplates: List<WorkoutEntity> = emptyList(),
+    val exercisePreviewByTemplateId: Map<Long, String> = emptyMap(),
+    val isStarting: Boolean = false,
+    val startedWorkoutId: Long? = null,
+    val errorMessage: String? = null
 )

@@ -9,12 +9,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.rogue.gymquest.presentation.components.ActiveWorkoutBanner
 import com.rogue.gymquest.presentation.components.GymQuestBottomBar
 import com.rogue.gymquest.presentation.screens.ExerciseDetailScreen
 import com.rogue.gymquest.presentation.screens.ExerciseFormScreen
@@ -26,6 +28,8 @@ import com.rogue.gymquest.presentation.screens.ProfileScreen
 import com.rogue.gymquest.presentation.screens.SettingsScreen
 import com.rogue.gymquest.presentation.screens.WorkoutDetailScreen
 import com.rogue.gymquest.presentation.screens.WorkoutsScreen
+import com.rogue.gymquest.presentation.viewmodel.ActiveWorkoutViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun AppNavigation() {
@@ -34,7 +38,22 @@ fun AppNavigation() {
     val currentRoute by navController.currentBackStackEntryAsState()
     val showBottomBar = currentRoute?.destination?.route in bottomBarRoutes
 
+    val activeWorkoutViewModel: ActiveWorkoutViewModel = koinViewModel()
+    val activeWorkout by activeWorkoutViewModel.inProgressWorkout.collectAsStateWithLifecycle()
+
     Scaffold(
+        topBar = {
+            activeWorkout?.let { workout ->
+                ActiveWorkoutBanner(
+                    workout = workout,
+                    onClick = {
+                        navController.navigate(Routes.WorkoutDetail.create(workout.id)) {
+                            launchSingleTop = true
+                        }
+                    }
+                )
+            }
+        },
         bottomBar = {
             if (showBottomBar) {
                 GymQuestBottomBar(
@@ -72,7 +91,8 @@ fun AppNavigation() {
 
             composable(Routes.Workouts.route) {
                 WorkoutsScreen(
-                    onViewWorkout = { id -> navController.navigate(Routes.WorkoutDetail.create(id)) }
+                    onViewWorkout = { id -> navController.navigate(Routes.WorkoutDetail.create(id)) },
+                    onWorkoutStarted = { id -> navController.navigate(Routes.WorkoutDetail.create(id)) }
                 )
             }
 
